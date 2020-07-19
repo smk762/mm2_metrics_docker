@@ -92,10 +92,14 @@ class mm2_proxy:
         return r.json()
 
     def coins_needed_for_kick_start(self):
-        pass
+        self.params.update({'method': 'coins_needed_for_kick_start'})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
-    def disable_coin(self):
-        pass
+    def disable_coin(self, coin):
+        self.params.update({'method': 'disable_coin', 'coin': coin})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
     def electrum(self, cointag, tx_history=True):
         if cointag in coins_info:
@@ -165,14 +169,20 @@ class mm2_proxy:
         r = requests.post(self.node_ip, json=self.params)
         return r.json()
 
-    def import_swaps(self):
-        pass
+    def import_swaps(self, swap_json):
+        self.params.update({'method': 'import_swaps', 'swaps':swap_json})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
     def list_banned_pubkeys(self):
-        pass
+        self.params.update({'method': 'list_banned_pubkeys'})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
-    def max_taker_vol(self):
-        pass
+    def max_taker_vol(self, coin):
+        self.params.update({'method': 'max_taker_vol', 'coin':coin})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
     def my_balance(self, cointag):
         self.params.update({
@@ -200,18 +210,52 @@ class mm2_proxy:
         r = requests.post(self.node_ip,json=self.params)
         return r.json()
 
-    def my_swap_status(self, swap_uuid):    
+    def get_finished_swaps(self, limit=50):
+        finished_swaps = []
+        recent_swaps = my_recent_swaps(self, limit).json()
+        for swap in recent_swaps['result']['swaps']:
+            swap_events = []
+            for event in swap['events']:
+                swap_events.append(event['event']['type'])
+            if 'Finished' in swap_events:
+                finished_swaps.append(swap)
+        return finished_swaps
+
+    def get_unfinished_swaps(self, limit=50):
+        unfinished_swaps = []
+        recent_swaps = my_recent_swaps(self, limit).json()
+        for swap in recent_swaps['result']['swaps']:
+            swap_events = []
+            for event in swap['events']:
+                swap_events.append(event['event']['type'])
+            if 'Finished' not in swap_events:
+                unfinished_swaps.append(swap)
+        return unfinished_swaps
+
+    def my_swap_status(self, swap_uuid):
         self.params.update({
                   'method': 'my_swap_status',
                   'params': {"uuid": swap_uuid}})
         r = requests.post(self.node_ip,json=self.params)
         return r.json()
 
-    def my_tx_history(self):
-        pass
+    def my_tx_history(self, coin, limit=50, from_id=None):
+        self.params.update({
+                     'method': 'my_tx_history',
+                     'coin': coin,
+                     'limit': limit
+                 })
+        if from_id:
+            self.params.update({'from_id':from_id})
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()
 
-    def order_status(self):
-        pass
+    def order_status(self, swap_uuid):
+        self.params.update({
+                  'method': 'order_status',
+                  'uuid': swap_uuid})
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()
 
     def orderbook(self, base, rel):
         self.params.update({
@@ -230,8 +274,17 @@ class mm2_proxy:
         r = requests.post(self.node_ip, json=self.params)
         return r.json()
 
-    def sell(self):
-        pass
+    # sell base, buy rel
+    def sell(self, base, rel, basevolume, relprice):
+        self.params.update({
+                     'method': 'sell',
+                     'base': base,
+                     'rel': rel,
+                     'volume': basevolume,
+                     'price': relprice
+                 })
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()    
 
     def send_raw_transaction(self, cointag, rawhex):
         self.params.update({
@@ -253,20 +306,48 @@ class mm2_proxy:
         r = requests.post(self.node_ip, json=self.params)
         return r.json()
 
-    def set_required_confirmations(self):
-        pass
+    def set_required_confirmations(self, cointag, confs):
+        self.params.update({
+                  'method': 'set_required_confirmations',
+                  'coin': cointag, "confirmations":confs})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
-    def set_requires_notarization(self):
-        pass
+    def set_requires_notarization(self, cointag, req_ntx=False):
+        self.params.update({
+                  'method': 'set_requires_notarization',
+                  'coin': cointag, "requires_notarization":req_ntx})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
-    def show_priv_key(self):
-        pass
+    def show_priv_key(self, coin):
+        self.params.update({
+                  'method': 'show_priv_key',
+                  'coin': coin})
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()
 
     def stop(self):
-        pass
+        self.params.update({'method': 'stop'})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
-    def unban_pubkeys(self):
-        pass
+    def unban_all_pubkeys(self):
+        self.params.update({
+                      'method': 'unban_pubkeys',
+                      'unban_by': {"type":"All"}
+                  })
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()
+
+    def unban_pubkeys(pubkey_list):
+        self.params.update({
+                      'method': 'unban_pubkeys',
+                      'unban_by': {"type":"Few"},
+                      'data': list(pubkey_list)
+                  })
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()
 
     def version(self):
         self.params.update({'method': 'version'})
@@ -305,30 +386,5 @@ class mm2_proxy:
         return coins_list
 
 
-
-
-    '''
-
-
-
-
-
-
-
-
-
-    def get_unfinished_swaps(self):
-        unfinished_swaps = []
-        unfinished_swap_uuids = []
-        recent_swaps = my_recent_swaps(self, 50).json()
-        for swap in recent_swaps['result']['swaps']:
-            swap_events = []
-            for event in swap['events']:
-                swap_events.append(event['event']['type'])
-            if 'Finished' not in swap_events:
-                unfinished_swaps.append(swap)
-                unfinished_swap_uuids.append(swap['uuid'])
-        return unfinished_swap_uuids, unfinished_swaps
-    '''
 
 mm2 = mm2_proxy(coins, mm2_creds['rpc_password'], mm2_creds['node_ip'])
