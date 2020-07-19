@@ -56,6 +56,7 @@ class mm2_proxy:
         r = requests.post(self.node_ip,json=self.params)
         return r.json()    
 
+
     def cancel_all(self):
         self.params.update({
                   'method': 'cancel_all_orders',
@@ -90,57 +91,11 @@ class mm2_proxy:
         r = requests.post(self.node_ip,json=self.params)
         return r.json()
 
+    def coins_needed_for_kick_start(self):
+        pass
 
-
-    def orderbook(self, base, rel):
-        self.params.update({
-                     'method': 'orderbook',
-                     'base': base,
-                     'rel': rel
-                 })
-        r = requests.post(self.node_ip,json=self.params)
-        return r.json()
-
-    def help(self):
-        self.params.update({'method': 'help'})
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json()
-
-    def my_orders(self):
-        self.params.update({'method': 'my_orders'})
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json()
-
-    def version(self):
-        self.params.update({'method': 'version'})
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json()
-
-    def get_enabled_coins(self):
-        self.params.update({'method': 'get_enabled_coins'})
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json()
-
-    def get_enabled_coins_list(self):
-        self.params.update({'method': 'get_enabled_coins'})
-        r = requests.post(self.node_ip, json=self.params)
-        enabled_coins = []
-        for item in r.json()['result']:
-            enabled_coins.append(item['ticker'])
-        return enabled_coins
-
-    def list_coins(self):
-        coins_list = {
-            "enabled":[],
-            "inactive":[]
-        }
-        enabled = self.get_enabled_coins_list()
-        for coin in self.coins:
-            if coin['coin'] in enabled:
-                coins_list['enabled'].append(coin['coin'])
-            else:
-                coins_list['inactive'].append(coin['coin'])
-        return coins_list
+    def disable_coin(self):
+        pass
 
     def electrum(self, cointag, tx_history=True):
         if cointag in coins_info:
@@ -174,17 +129,6 @@ class mm2_proxy:
             print(coin+" has no info!")
             return False
 
-    def my_balance(self, cointag):
-        self.params.update({
-                  'method': 'my_balance',
-                  'coin': cointag})
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json()
-
-
-
-
-    '''
     def enable(self, cointag, tx_history=True):
         coin = coinslib.coins[cointag]
         self.params.update({
@@ -195,59 +139,50 @@ class mm2_proxy:
         r = requests.post(self.node_ip, json=self.params)
         return r.json()
 
+    def get_enabled_coins(self):
+        self.params.update({'method': 'get_enabled_coins'})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
 
-    def get_fee(self, coin):
+    def get_enabled_coins_list(self):
+        self.params.update({'method': 'get_enabled_coins'})
+        r = requests.post(self.node_ip, json=self.params)
+        enabled_coins = []
+        for item in r.json()['result']:
+            enabled_coins.append(item['ticker'])
+        return enabled_coins
+
+    def get_trade_fee(self, coin):
         self.params.update({
                   'method': 'get_trade_fee',
                   'coin': coin
-                  }
+                  })
         r = requests.post(self.node_ip,json=self.params)
         return r.json()
 
-
-    # sell base, buy rel.
-    def setprice(self, base, rel, basevolume, relprice, trademax=False, cancel_previous=True):
-        self.params.update({
-                  'method': 'setprice',
-                  'base': base,
-                  'rel': rel,
-                  'volume': basevolume,
-                  'price': relprice,
-                  'max':trademax,
-                  'cancel_previous':cancel_previous})
+    def help(self):
+        self.params.update({'method': 'help'})
         r = requests.post(self.node_ip, json=self.params)
         return r.json()
 
-    def recover_stuck_swap(self, uuid):
-        self.params.update({
-                  'method': 'recover_funds_of_swap',
-                  'params': {'uuid':uuid}
-                  }
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json()    
+    def import_swaps(self):
+        pass
 
-    def withdraw(self, cointag, address, amount):
-        self.params.update({
-                  'method': 'withdraw',
-                  'coin': cointag,
-                  'to': address,
-                  'amount': amount})
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json() 
+    def list_banned_pubkeys(self):
+        pass
 
-    def withdraw_all(self, cointag, address):
-        self.params.update({
-                  'method': 'withdraw',
-                  'coin': cointag,
-                  'to': address,
-                  'max': True}
-        r = requests.post(self.node_ip, json=self.params)
-        return r.json() 
+    def max_taker_vol(self):
+        pass
 
-    def send_raw_transaction(self, cointag, rawhex):
+    def my_balance(self, cointag):
         self.params.update({
-                  'method': 'send_raw_transaction',
-                  'coin': cointag, "tx_hex":rawhex})
+                  'method': 'my_balance',
+                  'coin': cointag})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
+
+    def my_orders(self):
+        self.params.update({'method': 'my_orders'})
         r = requests.post(self.node_ip, json=self.params)
         return r.json()
 
@@ -271,6 +206,116 @@ class mm2_proxy:
                   'params': {"uuid": swap_uuid}})
         r = requests.post(self.node_ip,json=self.params)
         return r.json()
+
+    def my_tx_history(self):
+        pass
+
+    def order_status(self):
+        pass
+
+    def orderbook(self, base, rel):
+        self.params.update({
+                     'method': 'orderbook',
+                     'base': base,
+                     'rel': rel
+                 })
+        r = requests.post(self.node_ip,json=self.params)
+        return r.json()
+
+    def recover_funds_of_swap(self, uuid):
+        self.params.update({
+                  'method': 'recover_funds_of_swap',
+                  'params': {'uuid':uuid}
+                  })
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
+
+    def sell(self):
+        pass
+
+    def send_raw_transaction(self, cointag, rawhex):
+        self.params.update({
+                  'method': 'send_raw_transaction',
+                  'coin': cointag, "tx_hex":rawhex})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
+
+    # sell base, buy rel.
+    def setprice(self, base, rel, basevolume, relprice, trademax=False, cancel_previous=True):
+        self.params.update({
+                  'method': 'setprice',
+                  'base': base,
+                  'rel': rel,
+                  'volume': basevolume,
+                  'price': relprice,
+                  'max':trademax,
+                  'cancel_previous':cancel_previous})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
+
+    def set_required_confirmations(self):
+        pass
+
+    def set_requires_notarization(self):
+        pass
+
+    def show_priv_key(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def unban_pubkeys(self):
+        pass
+
+    def version(self):
+        self.params.update({'method': 'version'})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json()
+
+    def withdraw(self, cointag, address, amount):
+        self.params.update({
+                  'method': 'withdraw',
+                  'coin': cointag,
+                  'to': address,
+                  'amount': amount})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json() 
+
+    def withdraw_all(self, cointag, address):
+        self.params.update({
+                  'method': 'withdraw',
+                  'coin': cointag,
+                  'to': address,
+                  'max': True})
+        r = requests.post(self.node_ip, json=self.params)
+        return r.json() 
+
+    def list_coins(self):
+        coins_list = {
+            "enabled":[],
+            "inactive":[]
+        }
+        enabled = self.get_enabled_coins_list()
+        for coin in self.coins:
+            if coin['coin'] in enabled:
+                coins_list['enabled'].append(coin['coin'])
+            else:
+                coins_list['inactive'].append(coin['coin'])
+        return coins_list
+
+
+
+
+    '''
+
+
+
+
+
+
+
+
 
     def get_unfinished_swaps(self):
         unfinished_swaps = []
