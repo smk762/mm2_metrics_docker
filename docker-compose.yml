@@ -1,0 +1,41 @@
+version: "3.1"
+volumes:
+  prometheus:
+  grafana:
+  mm2:
+services:
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+    ports:
+      - '3000:3000'
+    network_mode: "host"
+    volumes:
+      - grafana:/var/lib/grafana
+    restart: always
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - '9090:9090'
+    network_mode: "host"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    restart: always
+  atomicdex:
+    image: komodoofficial/atomicdexapi:beta-2.0.2151
+    ports:
+      - '7783:7783'
+    network_mode: "host"
+    environment:
+      - MM_CONF_PATH=/mm2/MM2.json
+      - MM_COINS_PATH=/mm2/coins
+    volumes:
+      - mm2:/mm2
+      - ./mm2/MM2.json:/mm2/MM2.json
+      - ./mm2/coins:/mm2/coins
+    restart: always
+
+
+

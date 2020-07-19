@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import time
+import requests
+import subprocess
+from os.path import expanduser
+
+cwd = os.getcwd()
+script_path = sys.path[0]
+home = expanduser("~")
+
+# Get credentials from MM2.json
+with open("./mm2/MM2.json") as f:
+    mm2_creds = json.loads(f.read())
+
+print(mm2_creds)
+
+class mm2_proxy:
+    '''
+    Class for accessing mm2 methods
+    '''
+    def __init__(self, userpass, node_ip):
+        self.userpass = userpass
+        self.node_ip = "http://"+node_ip+":7783"
+
+    def help(self):
+        self.params = {'userpass': self.userpass, 'method': 'help'}
+        print(self.params)
+        r = requests.post(self.node_ip, json=self.params)
+        return r.text
+
+    def my_orders(self):
+        self.params = {'userpass': self.userpass, 'method': 'my_orders'}
+        print(self.params)
+        r = requests.post(self.node_ip, json=self.params)
+        return r.text
+
+    def version(self):
+        self.params = {'userpass': self.userpass, 'method': 'version'}
+        print(self.params)
+        r = requests.post(self.node_ip, json=self.params)
+        return r.text
+
+def help_mm2(node_ip, user_pass):
+    params = {'userpass': user_pass, 'method': 'help'}
+    r = requests.post(node_ip, json=params)
+    return r.text
+
+mm2 = mm2_proxy(mm2_creds['rpc_password'], mm2_creds['node_ip'])
+print(help_mm2("http://"+mm2_creds['node_ip']+":7783", mm2_creds['rpc_password']))
+print(mm2.help())
+print(mm2.version())
+print(mm2.my_orders())
+
