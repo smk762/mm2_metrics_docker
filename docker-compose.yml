@@ -1,9 +1,12 @@
 version: "3.1"
+
 volumes:
   prometheus:
   grafana:
   mm2:
+
 services:
+
   grafana:
     image: grafana/grafana:latest
     depends_on:
@@ -14,6 +17,7 @@ services:
     volumes:
       - grafana:/var/lib/grafana
     restart: always
+
   prometheus:
     image: prom/prometheus:latest
     ports:
@@ -23,6 +27,7 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus:/prometheus
     restart: always
+
   atomicdex:
     image: komodoofficial/atomicdexapi:beta-2.0.2151
     ports:
@@ -37,5 +42,37 @@ services:
       - ./mm2/coins:/mm2/coins
     restart: always
 
+  atomicstats_db:
+    container_name: "atomicstats_db"
+    # path to dockerfile
+    build: ./docker/mysql
+    restart: always
+    tty: true
+    environment:
+      MYSQL_DATABASE: atomicstats_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password 
+      MYSQL_ROOT_PASSWORD: password 
+    ports:
+      - "3306:3306"
+    network_mode: "host"
+    volumes:
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d # table creation definition
+      - ./docker/mysql/conf.d:/etc/mysql/conf.d 
+      - ./log/mysql:/var/log/mysql 
+
+
+  # FastAPI
+  api:
+    depends_on:
+      - atomicstats_db
+    container_name: "api"
+    # path to dockerfile
+    build: ./docker/api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./code:/usr/src/server
+    network_mode: "host"
 
 

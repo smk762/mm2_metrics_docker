@@ -385,6 +385,4 @@ class mm2_proxy:
                 coins_list['inactive'].append(coin['coin'])
         return coins_list
 
-
-
 mm2 = mm2_proxy(coins, mm2_creds['rpc_password'], mm2_creds['node_ip'])

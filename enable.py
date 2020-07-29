@@ -4,22 +4,24 @@ from colprint import colprint
 
 available_coins = mm2.list_coins()
 
+log = colprint()
+
 if len(sys.argv) > 1:
     coin = sys.argv[1]
 else:
-    colprint.info("Enabled coins: "+str(available_coins['enabled']))
-    colprint.info("Inactive coins: "+str(available_coins['inactive']))
-    colprint.query("Enter coin to activate: ")
+    log.info("Enabled coins: "+str(available_coins['enabled']))
+    log.info("Inactive coins: "+str(available_coins['inactive']))
+    log.query("Enter coin to activate: ")
     coin = input()
 
 if coin in available_coins['inactive']:
-    colprint.info("Activating "+coin)
-    colprint.response(mm2.electrum(coin))
+    log.info("Activating "+coin)
+    log.response(mm2.electrum(coin))
 elif coin in available_coins['enabled']:
-    colprint.warn(coin+" already active!")
-    colprint.response(mm2.my_balance(coin))
+    log.warn(coin+" already active!")
+    log.response(mm2.my_balance(coin))
 else:
-    colprint.warn("Coin not in available coins list!")
-    colprint.info("Inactive coins: "+str(available_coins['inactive']))
+    log.warn("Coin not in available coins list!")
+    log.info("Inactive coins: "+str(available_coins['inactive']))
 
 

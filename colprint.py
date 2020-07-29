@@ -11,17 +11,20 @@ class colprint:
     '''
     Class for colorizing prints
     '''
-    def info(self):
-        return print(blue + str(self) + reset)
+    def __init__(self):
+        pass
 
-    def error(self):
-        return print(red + str(self) + reset)
+    def info(self, msg):
+        return print(blue + str(msg) + reset)
 
-    def warn(self):
-        return print(yellow + str(self) + reset)
+    def error(self, msg):
+        return print(red + str(msg) + reset)
 
-    def response(self):
-        return print(cyan + str(self) + reset)
+    def warn(self, msg):
+        return print(yellow + str(msg) + reset)
 
-    def query(self):
-        return print(yellow + str(self) + reset)
+    def response(self, msg):
+        return print(cyan + str(msg) + reset)
+
+    def query(self, msg):
+        return print(yellow + str(msg) + reset)

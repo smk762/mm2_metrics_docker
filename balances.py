@@ -2,6 +2,8 @@ import sys
 from lib_mm2 import mm2
 from colprint import colprint
 
+log = colprint()
+
 if len(sys.argv) > 1:
     coin = sys.argv[1]
 else:
@@ -10,5 +12,5 @@ else:
         resp = mm2.my_balance(coin)
         bal = resp['balance']
         addr = resp['address']
-        colprint.response(f"{bal} {coin} in {addr}")
+        log.response(f"{bal} {coin} in {addr}")
 
